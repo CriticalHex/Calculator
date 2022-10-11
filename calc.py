@@ -1,6 +1,5 @@
-from ast import Or
+from calendar import c
 import pygame as pg
-import math
 
 pg.init()
 
@@ -40,11 +39,23 @@ def click(buttons: list[Button], mouse_pos: pg.Vector2):
     return None
 
 
-def render(screen, buttons, total):
+def render(screen: pg.surface.Surface, buttons: list[Button], current: str):
     for b in buttons:
         b.draw(screen)
-    font = TFONT.render(str(total), True, WHITE)
+    font = TFONT.render(current, True, WHITE)
     screen.blit(font, (0, 250))
+
+
+def calculate(a: str, b: str, operation: str):
+    if operation == "+":
+        return str(int(a) + int(b))
+    elif operation == "-":
+        return str(int(a) - int(b))
+    elif operation == "*":
+        return str(int(a) * int(b))
+    elif operation == "/":
+        return str(int(a) / int(b))
+    return a
 
 
 if __name__ == "__main__":
@@ -54,7 +65,7 @@ if __name__ == "__main__":
         ["7", "8", "9", "*"],
         ["4", "5", "6", "-"],
         ["1", "2", "3", "+"],
-        ["0", "pi", ".", "="],
+        ["0", "0", ".", "="],
     ]
     colors = [
         [LGRAY, LGRAY, LGRAY, ORANGE],
@@ -74,9 +85,14 @@ if __name__ == "__main__":
                 )
             )
 
-    ##########################################################################################
-    total = 0
+    numbers = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "."]
+    operations = ["+", "*", "-", "/"]
 
+    ##########################################################################################
+    values: list[str] = ["" for _ in range(2)]  # a:0, b:1
+    current: int = 0
+    operation: str = ""
+    result: str = ""
     screen = pg.display.set_mode((400, 800))
 
     running = True
@@ -91,10 +107,32 @@ if __name__ == "__main__":
                 MousePos = pg.Vector2(*pg.mouse.get_pos())
                 clicked = click(buttons, MousePos)
                 if clicked is not None:
-                    print(clicked.value)
+                    if operation == "":
+                        current = 0  # a
+                        print("a")
+                    else:
+                        current = 1  # b
+                        print("b")
+                    if clicked.value in numbers:
+                        values[current] += clicked.value
+                    elif clicked.value in operations:
+                        operation = clicked.value
+                    else:
+                        if clicked.value == "%":
+                            values[current] /= 100
+                        elif clicked.value == "+/-":
+                            values[current] = "-".join(values[current])
+                        elif clicked.value == "=":
+                            result = calculate(*values, operation)
+                        else:
+                            values = ["" for _ in range(2)]
+                            operation = ""
+                            result = ""
 
         screen.fill((0, 0, 0))
 
-        render(screen, buttons, total)
-
+        if result == "":
+            render(screen, buttons, values[current])
+        else:
+            render(screen, buttons, result)
         pg.display.flip()
