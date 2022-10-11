@@ -1,4 +1,3 @@
-from calendar import c
 import pygame as pg
 
 pg.init()
@@ -8,7 +7,7 @@ DGRAY = (49, 49, 49)
 ORANGE = (246, 153, 6)
 WHITE = (255, 255, 255)
 
-TFONT = pg.font.SysFont(None, 128)
+TFONT = pg.font.SysFont(None, 64)
 BFONT = pg.font.SysFont(None, 64)
 
 
@@ -48,13 +47,25 @@ def render(screen: pg.surface.Surface, buttons: list[Button], current: str):
 
 def calculate(a: str, b: str, operation: str):
     if operation == "+":
-        return str(int(a) + int(b))
+        try:
+            return str(float(a) + float(b))
+        except:
+            return "Err"
     elif operation == "-":
-        return str(int(a) - int(b))
+        try:
+            return str(float(a) - float(b))
+        except:
+            return "Err"
     elif operation == "*":
-        return str(int(a) * int(b))
+        try:
+            return str(float(a) * float(b))
+        except:
+            return "Err"
     elif operation == "/":
-        return str(int(a) / int(b))
+        try:
+            return str(float(a) / float(b))
+        except:
+            return "Err"
     return a
 
 
@@ -92,7 +103,7 @@ if __name__ == "__main__":
     values: list[str] = ["" for _ in range(2)]  # a:0, b:1
     current: int = 0
     operation: str = ""
-    result: str = ""
+    answer = False
     screen = pg.display.set_mode((400, 800))
 
     running = True
@@ -112,25 +123,31 @@ if __name__ == "__main__":
                     else:
                         current = 1  # b
                     if clicked.value in numbers:
+                        if answer:
+                            values[current] = ""
+                            answer = False
                         values[current] += clicked.value
                     elif clicked.value in operations:
+                        answer = False
                         operation = clicked.value
                     else:
-                        if clicked.value == "%":
-                            values[current] /= 100
-                        elif clicked.value == "+/-":
-                            values[current] = "-".join(values[current])
+                        if clicked.value == "%" and values[current] != "":
+                            values[current] = str(float(values[current]) / 100)
+                        elif clicked.value == "+/-" and values[current] != "":
+                            values[current] = str(-float(values[current]))
                         elif clicked.value == "=":
-                            result = calculate(*values, operation)
+                            answer = True
+                            current = 0
+                            values[current] = calculate(*values, operation)
+                            values[1] = ""
+                            operation = ""
                         else:
                             values = ["" for _ in range(2)]
                             operation = ""
-                            result = ""
 
         screen.fill((0, 0, 0))
 
-        if result == "":
-            render(screen, buttons, values[current])
-        else:
-            render(screen, buttons, result)
+        render(screen, buttons, values[current])
+
         pg.display.flip()
+pg.quit()
