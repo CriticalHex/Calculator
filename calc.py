@@ -109,10 +109,8 @@ if __name__ == "__main__":
                 if clicked is not None:
                     if operation == "":
                         current = 0  # a
-                        print("a")
                     else:
                         current = 1  # b
-                        print("b")
                     if clicked.value in numbers:
                         values[current] += clicked.value
                     elif clicked.value in operations:
